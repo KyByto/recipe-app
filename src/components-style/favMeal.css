@@ -1,0 +1,60 @@
+
+.fav-meal {
+  
+    background-color: rgb(238, 90, 238);
+    width: 100%;
+    padding: 5px;
+    text-align: center;
+
+}
+
+.Xmark-square-icon {
+ font-size: 1.4rem;
+ position: absolute;
+ top: -7px;
+ right: -7px;
+display: none;
+
+}
+
+
+
+.fav-list li {
+    position: relative;
+}
+
+.fav-list li:hover   .Xmark-square-icon {
+display: block;
+}
+
+.fav-list  {
+
+width: 100%;
+
+list-style-type: none;
+display: flex;
+align-items: center;
+justify-content: center;
+flex-wrap: wrap;
+
+}
+.fav-list li {
+    width: 100px;
+    
+}
+
+.fav-list img {
+    border: 3px solid white;
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    margin-bottom: 5px;
+}
+
+.fav-list li p {
+    margin: 0 auto;
+    width: 85%;
+    overflow:hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

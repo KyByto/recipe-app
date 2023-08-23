@@ -4,63 +4,96 @@ import SearchBar from "./components/searchBar.js"
 import FavMeal from './components/favMeal'
 import Recipe from "./components/recipe.js"
 import RecipeDetails from "./components/recipeDetails"
-import React from "react"
-//for fetching ("https://www.themealdb.com/api/json/v1/1/random.php")
+import {  useEffect ,useReducer } from "react"
 
+function Reducer(state,action) {
+
+
+  switch (action.type) {
+      case "favMeal":
+          return { ...state, favMeal: action.payload || []   }
+          
+        
+          case "meal":
+            return {...state, meal: action.payload}
+        
+            case "inputValue":
+              return {...state, inputValue:action.payload}
+            
+           case "details":
+            return {...state, details:action.payload}
+           
+            case "mealDetails":
+              return {...state, mealDetails:action.payload}
+             
+
+     default:
+      break;
+  }
+  
+  }
+
+
+const initialState = {
+meal:[],
+inputValue:"",
+mealDetails:null,
+details:false,
+favMeal:[] 
+
+}
 
 // for search ("https://www.themealdb.com/api/json/v1/1/search.php?s=" + search")
 function App() {
-const [meal , setMeal] = React.useState([]);
-const [inputValue ,setInputValue] = React.useState("")
-const [mealDetails , setMealDetails] = React.useState();
-const [details , setdetails] = React.useState(false)
-const [favMeal , setFavMeal] = React.useState([])
+
+const [state, dispatch] = useReducer( Reducer, initialState     )
 
 
 
-React.useEffect(  () => {
+
+
+
+useEffect(  () => {
 
 const response = localStorage.getItem("favMeal");
-
+console.log("inside useEffect")
 const parsedData= JSON.parse(response);
-
-setFavMeal( parsedData || [] );
+dispatch( { type:"favMeal" , payload :parsedData } )
+fetchData();
 
 },[] )
 
 
 
+async function fetchData() {
+  const response = await fetch("https://www.themealdb.com/api/json/v1/1/random.php");
+  const data = await response.json();
 
-
-
-
-
-React.useEffect(  () => {
+  dispatch( {type:"meal", payload :[data.meals[0]]}  )
   
-  async function fetchData() {
-    const response = await fetch("https://www.themealdb.com/api/json/v1/1/random.php");
-    const data = await response.json();
-    setMeal([data.meals[0]]);
-  }
+}
 
-  fetchData();
-    
-}, [] );
+
+
+
+
 
 
 
 function updateInput(event) {
   const {value} = event.target;
-  setInputValue(value)
+  dispatch( {type:"inputValue", payload: value})
+
   }
   
   async function searchMeal(event) {
   event.preventDefault();
-  setInputValue("");
-  const response = await fetch("https://www.themealdb.com/api/json/v1/1/search.php?s=" + inputValue);
-  const data = await response.json();
+  dispatch( {type:"inputValue", payload:""})
   
-  setMeal(data.meals);
+  const response = await fetch("https://www.themealdb.com/api/json/v1/1/search.php?s=" + state.inputValue);
+  const data = await response.json();
+  dispatch({type:"meal", payload:data.meals})
+  
   
   }
 
@@ -68,24 +101,20 @@ function updateInput(event) {
 
 
 
-    
-setdetails(true);
-setMealDetails(recipe)
+    dispatch({type:"details", payload:true})
+     dispatch({type:"mealDetails", payload:recipe})
+
   }
 function exitDetails() {
-  setdetails(false);
+  dispatch({type:"details", payload:false})
 }
 
-function addFav(index) {
- 
-setFavMeal( (prev) => [...prev , meal[index]]   );
-localStorage.setItem("favMeal",   JSON.stringify([...favMeal , meal[index]]))
 
-}
 function deleteFav(index) {
+const arr= state.favMeal.filter(  (_,i) => i!==index    );
+dispatch({type:"favMeal",payload:arr})
 
-setFavMeal(  (prev) =>  prev.filter( (_,i) =>  i!==index   ))
-localStorage.setItem("favMeal",   JSON.stringify(  favMeal.filter( (_,i) =>  i!==index )));
+localStorage.setItem("favMeal",   JSON.stringify( arr));
 
 
 
@@ -94,18 +123,20 @@ localStorage.setItem("favMeal",   JSON.stringify(  favMeal.filter( (_,i) =>  i!=
 function toggleFav(index) {
   
 
-if(favMeal.find(  (recipe) => recipe===meal[index]    )) {
-setFavMeal(   (prev) => prev.filter(  recipe => recipe!=meal[index]    )     );
-localStorage.setItem("favMeal",   JSON.stringify(   favMeal.filter(  recipe => recipe!=meal[index]   )));
+if(state.favMeal.find(  (recipe) => recipe===state.meal[index]    )) {
+  const arr=state.favMeal.filter(  recipe => recipe!==state.meal[index] );
+  dispatch({type:"favMeal", payload:arr})
+
+localStorage.setItem("favMeal",   JSON.stringify( arr ));
 
 }
 
 else {
 
+const arr= [...state.favMeal, state.meal[index]];
+dispatch({type:"favMeal",payload:arr})
 
-setFavMeal(    (prev) =>  [...prev , meal[index]]  );
-
-localStorage.setItem("favMeal",   JSON.stringify([...favMeal , meal[index]]))
+localStorage.setItem("favMeal",   JSON.stringify(arr))
 
 }
 
@@ -125,8 +156,8 @@ localStorage.setItem("favMeal",   JSON.stringify([...favMeal , meal[index]]))
 
   return (
     <>
-    { details ? <RecipeDetails
-    meal={mealDetails}
+    { state.details ? <RecipeDetails
+    meal={state.mealDetails}
     exitDetails={exitDetails}
    
     
@@ -136,11 +167,11 @@ localStorage.setItem("favMeal",   JSON.stringify([...favMeal , meal[index]]))
        
        updateInput={(event) => updateInput(event)}
        searchMeal={(event) =>searchMeal(event)}
-       inputValue={inputValue}    />
+       inputValue={state.inputValue}    />
      <section className="fav-meal">
       <h1>Favorite Meals</h1>
       <ul className="fav-list">
-   {favMeal.map( (recipe,index)  => 
+   {state.favMeal.map( (recipe,index)  => 
  <FavMeal
  key={index}
  
@@ -152,14 +183,14 @@ localStorage.setItem("favMeal",   JSON.stringify([...favMeal , meal[index]]))
      </ul>
     </section>
      
-      { meal &&  meal.map( (recipe,index)  => 
+      { state.meal &&  state.meal.map( (recipe,index)  => 
        <Recipe 
        toggleFav={() =>toggleFav(index)}
         displayDetails={() =>displayDetails(recipe)} 
         name={recipe.strMeal} 
         img={recipe.strMealThumb}
          key={index}
-         colored={favMeal.find( (favorite) => favorite==recipe   )}
+         colored={state.favMeal.find( (favorite) => favorite===recipe   )}
        
           />  ) }
      

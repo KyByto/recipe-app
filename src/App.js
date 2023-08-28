@@ -17,8 +17,7 @@ function Reducer(state,action) {
           case "meal":
             return {...state, meal: action.payload}
         
-            case "inputValue":
-              return {...state, inputValue:action.payload}
+          
             
            case "details":
             return {...state, details:action.payload}
@@ -36,7 +35,6 @@ function Reducer(state,action) {
 
 const initialState = {
 meal:[],
-inputValue:"",
 mealDetails:null,
 details:false,
 favMeal:[] 
@@ -47,11 +45,6 @@ favMeal:[]
 function App() {
 
 const [state, dispatch] = useReducer( Reducer, initialState     )
-
-
-
-
-
 
 useEffect(  () => {
 
@@ -73,38 +66,13 @@ async function fetchData() {
   
 }
 
-
-
-
-
-
-
-
-function updateInput(event) {
-  const {value} = event.target;
-  dispatch( {type:"inputValue", payload: value})
-
-  }
-  
-  async function searchMeal(event) {
-  event.preventDefault();
-  dispatch( {type:"inputValue", payload:""})
-  
-  const response = await fetch("https://www.themealdb.com/api/json/v1/1/search.php?s=" + state.inputValue);
-  const data = await response.json();
-  dispatch({type:"meal", payload:data.meals})
-  
-  
-  }
-
   function displayDetails(recipe) {
-
-
 
     dispatch({type:"details", payload:true})
      dispatch({type:"mealDetails", payload:recipe})
 
   }
+
 function exitDetails() {
   dispatch({type:"details", payload:false})
 }
@@ -115,8 +83,6 @@ const arr= state.favMeal.filter(  (_,i) => i!==index    );
 dispatch({type:"favMeal",payload:arr})
 
 localStorage.setItem("favMeal",   JSON.stringify( arr));
-
-
 
 }
 
@@ -147,13 +113,6 @@ localStorage.setItem("favMeal",   JSON.stringify(arr))
 
 
 
-
-
-
-
-;
-
-
   return (
     <>
     { state.details ? <RecipeDetails
@@ -165,9 +124,10 @@ localStorage.setItem("favMeal",   JSON.stringify(arr))
      <main className="container">
      <SearchBar 
        
-       updateInput={(event) => updateInput(event)}
-       searchMeal={(event) =>searchMeal(event)}
-       inputValue={state.inputValue}    />
+       
+      dispatch={dispatch}
+
+        />
      <section className="fav-meal">
       <h1>Favorite Meals</h1>
       <ul className="fav-list">
@@ -198,9 +158,6 @@ localStorage.setItem("favMeal",   JSON.stringify(arr))
            </main>  }
 </>
   
-    
-
-
   );
 }
 

@@ -37,7 +37,7 @@ const initialState = {
 meal:[],
 mealDetails:null,
 details:false,
-favMeal:[] 
+favMeal:(JSON.parse(localStorage.getItem("favMeal"))) || []
 
 }
 
@@ -47,13 +47,7 @@ function App() {
 const [state, dispatch] = useReducer( Reducer, initialState     )
 
 useEffect(  () => {
-
-const response = localStorage.getItem("favMeal");
-console.log("inside useEffect")
-const parsedData= JSON.parse(response);
-dispatch( { type:"favMeal" , payload :parsedData } )
 fetchData();
-
 },[] )
 
 
@@ -78,16 +72,13 @@ function exitDetails() {
 }
 
 
-function deleteFav(index) {
-const arr= state.favMeal.filter(  (_,i) => i!==index    );
-dispatch({type:"favMeal",payload:arr})
-
-localStorage.setItem("favMeal",   JSON.stringify( arr));
-
-}
-
-function toggleFav(index) {
-  
+function toggleFav(index,deleting) {
+  if(deleting) {
+ const arr=   state.favMeal.filter( (_,i) => i!==index  );
+dispatch({type:"favMeal",payload:arr});
+localStorage.setItem("favMeal", JSON.stringify(arr));
+  }
+  else {
 
 if(state.favMeal.find(  (recipe) => recipe===state.meal[index]    )) {
   const arr=state.favMeal.filter(  recipe => recipe!==state.meal[index] );
@@ -106,7 +97,7 @@ localStorage.setItem("favMeal",   JSON.stringify(arr))
 
 }
 
-
+  }
 
 
 }
@@ -136,7 +127,7 @@ localStorage.setItem("favMeal",   JSON.stringify(arr))
  key={index}
  
  meal={recipe}
- deleteFav={() =>deleteFav(index)}
+ deleteFav={() =>toggleFav(index,true)}
    displayDetails={() =>displayDetails(recipe)} />
 
    )}
@@ -145,7 +136,7 @@ localStorage.setItem("favMeal",   JSON.stringify(arr))
      
       { state.meal &&  state.meal.map( (recipe,index)  => 
        <Recipe 
-       toggleFav={() =>toggleFav(index)}
+       toggleFav={() =>toggleFav(index,false)}
         displayDetails={() =>displayDetails(recipe)} 
         name={recipe.strMeal} 
         img={recipe.strMealThumb}

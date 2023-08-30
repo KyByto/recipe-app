@@ -30,7 +30,7 @@ return (
 
 
 <img src={props.meal.strMealThumb}
-alt="image" />
+alt="recipeimg" />
 <p>{props.meal.strInstructions}</p>
 
 <div className="ingredient">

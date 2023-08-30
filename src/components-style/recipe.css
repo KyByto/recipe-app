@@ -28,10 +28,14 @@ box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
     font-weight: bold;
     justify-content: space-between;
 box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
-    height: 70px;
+   min-height: 70px;
 }
 
 .colored {
-    color:red
+    color:red;
+}
+
+.fa-heart {
+    margin: 3px;
 }
     

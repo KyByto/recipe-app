@@ -22,10 +22,10 @@ return (
             <li onClick={props.displayDetails}>
 
             <FontAwesomeIcon icon={faSquareXmark} className="Xmark-square-icon" onClick={props.deleteFav} />
-            <img src={props.meal.strMealThumb} />
+            <img alt="recipeimg" src={props.meal.strMealThumb} />
 
 
-<p>{props.meal.strMeal}</p>
+<p>{props.meal.strMeal }</p>
 
 
                 </li>

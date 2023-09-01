@@ -4,105 +4,27 @@ import SearchBar from "./components/searchBar.js"
 import FavMeal from './components/favMeal'
 import Recipe from "./components/recipe.js"
 import RecipeDetails from "./components/recipeDetails"
-import {  useEffect ,useReducer } from "react"
+import {  useEffect ,useReducer} from "react"
 
-function Reducer(state,action) {
-
-
-  switch (action.type) {
-      case "favMeal":
-          return { ...state, favMeal: action.payload || []   }
-          
-        
-          case "meal":
-            return {...state, meal: action.payload}
-        
-          
-            
-           case "details":
-            return {...state, details:action.payload}
-           
-            case "mealDetails":
-              return {...state, mealDetails:action.payload}
-             
-
-     default:
-      break;
-  }
-  
-  }
+import useRecipe from "./useRecipe"
 
 
 const initialState = {
 meal:[],
 mealDetails:null,
 details:false,
-favMeal:(JSON.parse(localStorage.getItem("favMeal"))) || []
-
+favMeal:(JSON.parse(localStorage.getItem("favMeal"))) || [] ,
+inputValue:""
 }
 
-// for search ("https://www.themealdb.com/api/json/v1/1/search.php?s=" + search")
+
 function App() {
 
-const [state, dispatch] = useReducer( Reducer, initialState     )
-
+const {state,  displayDetails  ,exitDetails  ,toggleFav,fetchData,updateInput,searchMeal} = useRecipe(initialState)
 useEffect(  () => {
-fetchData();
+  fetchData();
+
 },[] )
-
-
-
-async function fetchData() {
-  const response = await fetch("https://www.themealdb.com/api/json/v1/1/random.php");
-  const data = await response.json();
-
-  dispatch( {type:"meal", payload :[data.meals[0]]}  )
-  
-}
-
-  function displayDetails(recipe) {
-
-    dispatch({type:"details", payload:true})
-     dispatch({type:"mealDetails", payload:recipe})
-
-  }
-
-function exitDetails() {
-  dispatch({type:"details", payload:false})
-}
-
-
-function toggleFav(index,deleting) {
-  if(deleting) {
- const arr=   state.favMeal.filter( (_,i) => i!==index  );
-dispatch({type:"favMeal",payload:arr});
-localStorage.setItem("favMeal", JSON.stringify(arr));
-  }
-  else {
-
-if(state.favMeal.find(  (recipe) => recipe===state.meal[index]    )) {
-  const arr=state.favMeal.filter(  recipe => recipe!==state.meal[index] );
-  dispatch({type:"favMeal", payload:arr})
-
-localStorage.setItem("favMeal",   JSON.stringify( arr ));
-
-}
-
-else {
-
-const arr= [...state.favMeal, state.meal[index]];
-dispatch({type:"favMeal",payload:arr})
-
-localStorage.setItem("favMeal",   JSON.stringify(arr))
-
-}
-
-  }
-
-
-}
-
-
 
   return (
     <>
@@ -114,9 +36,9 @@ localStorage.setItem("favMeal",   JSON.stringify(arr))
     /> :  
      <main className="container">
      <SearchBar 
-       
-       
-      dispatch={dispatch}
+       inputValue={state.inputValue}
+       searchMeal={searchMeal}
+      updateInput={updateInput}
 
         />
      <section className="fav-meal">
